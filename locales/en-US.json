@@ -1,0 +1,124 @@
+{
+    "errors": {
+        "unknown_sender": "[Unknown Sender]",
+        "no_subject": "[No Subject]",
+        "config_not_found": "Configuration file not found",
+        "imap_connection": "Failed to connect to IMAP server: %{error}",
+        "create_tls_connector": "Failed to create TLS connector",
+        "connect_imap": "Failed to connect to IMAP server",
+        "imap_login_failed": "IMAP login failed: %{error}",
+        "select_inbox": "Failed to select inbox",
+        "create_regex": "Failed to create regex pattern",
+        "search_email_failed": "Failed to search emails: %{error}",
+        "fetch_content_failed": "Failed to fetch email content: %{error}"
+    },
+    "commands": {
+        "watch": {
+            "timeout": "Timeout: No verification code found",
+            "connecting": "Connecting to IMAP server",
+            "searching": "Searching for unread emails",
+            "from_filter": "From filter: %{filter}",
+            "success": "Found verification code: %{code}"
+        },
+        "generate": {
+            "success": "Successfully generated alias: %{alias}",
+            "failed": "Failed to generate alias: %{error}"
+        },
+        "delete": {
+            "no_aliases": "No email aliases found, nothing to delete",
+            "enter_numbers": "Enter the numbers of email aliases to delete (separate multiple numbers with spaces, type 'all' to select all):",
+            "prompt": "Enter > ",
+            "selected_all": "You've selected to delete all %{count} email aliases",
+            "ignore_invalid_number": "Ignoring invalid number: %{number}",
+            "ignore_invalid_input": "Ignoring invalid input: %{input}",
+            "no_selection": "No email aliases selected, operation cancelled",
+            "selected_count": "You've selected to delete %{count} email aliases",
+            "to_be_deleted": "The following email aliases will be deleted:",
+            "confirm": "This action cannot be undone, do you want to continue? (y/N)",
+            "cancelled": "Operation cancelled",
+            "deleting": "Deleting email aliases...",
+            "delete_success": "Successfully deleted %{success}/%{total} email aliases",
+            "delete_partial": "Delete partially failed: %{success}/%{total} email aliases",
+            "summary_title": "Delete Operation Summary",
+            "summary_content": "Deleted a total of %{count} email aliases",
+            "all_deleted": "All selected email aliases have been successfully deleted",
+            "failure_title": "Failed to Delete Email Aliases",
+            "failure_content": "Failed to delete %{count} email aliases:",
+            "failure_table_headers": {
+                "email": "Email Alias",
+                "reason": "Failure Reason"
+            }
+        }
+    },
+    "ui": {
+        "app_title": "Cloudflare Email Alias Generator",
+        "app_subtitle": "A powerful and simple email alias management tool",
+        "loading_config": "Loading configuration...",
+        "config_loaded": "Configuration loaded successfully",
+        "config_failed": "Failed to load configuration: %{error}",
+        "config_hint": "Make sure you have created a config file at ~/.config/cfmail/config.toml",
+        "generating_alias": "Generating email alias...",
+        "alias_generated": "Email alias generated successfully: %{alias}",
+        "alias_failed": "Failed to generate email alias: %{error}",
+        "configuring_route": "Configuring Cloudflare email routing...",
+        "route_configured": "Email routing configured successfully",
+        "route_failed": "Failed to configure email routing: %{error}",
+        "clipboard_failed": "Unable to copy to clipboard: %{error}",
+        "clipboard_success": "Email alias copied to clipboard",
+        "result_title": "Generated Result",
+        "alias_ready": "You can use this email address immediately",
+        "fetching_aliases": "Fetching email aliases...",
+        "aliases_fetched": "Successfully retrieved %{count} email aliases",
+        "no_aliases": "No email aliases found",
+        "aliases_failed": "Failed to fetch email aliases: %{error}",
+        "waiting_code": "Waiting for verification code email...",
+        "code_found": "Successfully retrieved verification code",
+        "code_copied": "Verification code copied to clipboard",
+        "code_failed": "Failed to get verification code: %{error}",
+        "code_result": "Verification Code Result",
+        "initializing_config": "Initializing configuration file...",
+        "config_initialized": "Configuration file initialized successfully",
+        "config_edit_hint": "Please edit this configuration file with your Cloudflare and email information",
+        "config_init_failed": "Failed to initialize configuration file: %{error}",
+        "config_location": "Configuration File Location",
+        "active_aliases": "Active Email Aliases (Total: %{count})",
+        "table": {
+            "number": "No.",
+            "email_alias": "Email Alias",
+            "status": "Status",
+            "active": "Active"
+        }
+    },
+    "modules": {
+        "generate": "Generate Email Alias",
+        "list": "Email Alias List",
+        "delete": "Delete Email Alias",
+        "watch": "Email Verification Code Monitor",
+        "init": "Initialize Configuration"
+    },
+    "debug": {
+        "from_method_success": "from() method success: %{text}",
+        "from_method_no_text": "from() method did not return text content",
+        "find_from_header": "Start searching for From header",
+        "check_header": "Checking header: %{name}",
+        "found_from_header": "Found From header",
+        "from_header_value_type": "From header value type: %{type}",
+        "from_text_content": "From text content: %{content}",
+        "from_header_no_text": "Cannot extract text from From header",
+        "no_valid_from_header": "No valid From header found. All headers list:",
+        "header_name": "Header name: %{name}",
+        "header_value": "Value: %{value}",
+        "header_no_text": "Value: <cannot extract text>"
+    },
+    "code_markers": {
+        "verification_code": "verification code",
+        "password": "password",
+        "check_code": "check code",
+        "dynamic_code": "dynamic code",
+        "token": "token",
+        "code": "code",
+        "verification_token": "verification token",
+        "dynamic_password": "dynamic password",
+        "verification": "verification"
+    }
+} 

@@ -1,0 +1,124 @@
+{
+    "errors": {
+        "unknown_sender": "[未知发件人]",
+        "no_subject": "[无标题]",
+        "config_not_found": "未找到配置文件",
+        "imap_connection": "连接IMAP服务器失败: %{error}",
+        "create_tls_connector": "无法创建TLS连接器",
+        "connect_imap": "无法连接到IMAP服务器",
+        "imap_login_failed": "IMAP登录失败: %{error}",
+        "select_inbox": "无法选择收件箱",
+        "create_regex": "无法创建正则表达式",
+        "search_email_failed": "搜索邮件失败: %{error}",
+        "fetch_content_failed": "获取邮件内容失败: %{error}"
+    },
+    "commands": {
+        "watch": {
+            "timeout": "超时: 未找到包含验证码的邮件",
+            "connecting": "正在连接IMAP服务器",
+            "searching": "正在搜索未读邮件",
+            "from_filter": "发件人过滤: %{filter}",
+            "success": "找到验证码: %{code}"
+        },
+        "generate": {
+            "success": "成功生成别名: %{alias}",
+            "failed": "生成别名失败: %{error}"
+        },
+        "delete": {
+            "no_aliases": "未找到任何邮箱别名，无需删除",
+            "enter_numbers": "请输入要删除的邮箱别名编号（多个编号用空格分隔，输入 'all' 全选）:",
+            "prompt": "请输入 > ",
+            "selected_all": "您选择了删除所有 %{count} 个邮箱别名",
+            "ignore_invalid_number": "忽略无效编号: %{number}",
+            "ignore_invalid_input": "忽略无效输入: %{input}",
+            "no_selection": "未选择任何邮箱别名，操作已取消",
+            "selected_count": "您选择了删除 %{count} 个邮箱别名",
+            "to_be_deleted": "以下邮箱别名将被删除:",
+            "confirm": "此操作不可撤销，请确认是否继续? (y/N)",
+            "cancelled": "操作已取消",
+            "deleting": "正在删除邮箱别名...",
+            "delete_success": "成功删除 %{success}/%{total} 个邮箱别名",
+            "delete_partial": "删除部分失败: %{success}/%{total} 个邮箱别名",
+            "summary_title": "删除操作总结",
+            "summary_content": "共删除 %{count} 个邮箱别名",
+            "all_deleted": "所有选中的邮箱别名已成功删除",
+            "failure_title": "删除失败的邮箱别名",
+            "failure_content": "共 %{count} 个邮箱别名删除失败:",
+            "failure_table_headers": {
+                "email": "邮箱别名",
+                "reason": "失败原因"
+            }
+        }
+    },
+    "ui": {
+        "app_title": "Cloudflare 邮箱别名生成器",
+        "app_subtitle": "一个强大、简洁的邮箱别名管理工具",
+        "loading_config": "正在加载配置...",
+        "config_loaded": "配置加载成功",
+        "config_failed": "配置加载失败: %{error}",
+        "config_hint": "请确保在 ~/.config/cfmail/config.toml 创建了配置文件",
+        "generating_alias": "正在生成邮箱别名...",
+        "alias_generated": "邮箱别名生成成功: %{alias}",
+        "alias_failed": "邮箱别名生成失败: %{error}",
+        "configuring_route": "正在配置Cloudflare邮件路由...",
+        "route_configured": "邮件路由配置成功",
+        "route_failed": "邮件路由配置失败: %{error}",
+        "clipboard_failed": "无法复制到剪贴板: %{error}",
+        "clipboard_success": "邮箱别名已复制到剪贴板",
+        "result_title": "生成结果",
+        "alias_ready": "您可以立即使用此邮箱地址接收邮件",
+        "fetching_aliases": "正在获取邮箱别名列表...",
+        "aliases_fetched": "成功获取到 %{count} 个邮箱别名",
+        "no_aliases": "未找到邮箱别名",
+        "aliases_failed": "获取邮箱别名列表失败: %{error}",
+        "waiting_code": "等待验证码邮件...",
+        "code_found": "成功获取验证码",
+        "code_copied": "验证码已复制到剪贴板",
+        "code_failed": "获取验证码失败: %{error}",
+        "code_result": "验证码结果",
+        "initializing_config": "正在初始化配置文件...",
+        "config_initialized": "配置文件初始化成功",
+        "config_edit_hint": "请编辑此配置文件，填入您的Cloudflare和邮箱信息",
+        "config_init_failed": "配置文件初始化失败: %{error}",
+        "config_location": "配置文件位置",
+        "active_aliases": "活跃的邮箱别名 (共%{count}个)",
+        "table": {
+            "number": "序号",
+            "email_alias": "邮箱别名",
+            "status": "状态",
+            "active": "活跃"
+        }
+    },
+    "modules": {
+        "generate": "生成邮箱别名",
+        "list": "邮箱别名列表",
+        "delete": "删除邮箱别名",
+        "watch": "邮箱验证码监听",
+        "init": "初始化配置文件"
+    },
+    "debug": {
+        "from_method_success": "from()方法成功: %{text}",
+        "from_method_no_text": "from()方法未返回文本内容",
+        "find_from_header": "开始查找From头部",
+        "check_header": "检查头部: %{name}",
+        "found_from_header": "找到From头部",
+        "from_header_value_type": "From头部值类型: %{type}",
+        "from_text_content": "From文本内容: %{content}",
+        "from_header_no_text": "From头部无法提取文本",
+        "no_valid_from_header": "没有找到有效的From头部。所有头部列表:",
+        "header_name": "头部名称: %{name}",
+        "header_value": "值: %{value}",
+        "header_no_text": "值: <无法提取文本>"
+    },
+    "code_markers": {
+        "verification_code": "验证码",
+        "password": "密码",
+        "check_code": "校验码",
+        "dynamic_code": "动态码",
+        "token": "口令",
+        "code": "码",
+        "verification_token": "验证代码",
+        "dynamic_password": "动态密码",
+        "verification": "验证"
+    }
+} 

@@ -1,0 +1,110 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - "v*" # 当推送带有v开头的标签时触发，例如v0.1.0
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: cfmail
+            asset_name: cfmail-linux-amd64
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: cfmail.exe
+            asset_name: cfmail-windows-amd64.exe
+          - os: macos-latest
+            target: x86_64-apple-darwin
+            artifact_name: cfmail
+            asset_name: cfmail-macos-amd64
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          profile: minimal
+          override: true
+          target: ${{ matrix.target }}
+
+      - name: Build release binary
+        uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --release --target ${{ matrix.target }}
+
+      - name: Prepare binary
+        shell: bash
+        run: |
+          mkdir -p release
+          if [ "${{ matrix.os }}" = "windows-latest" ]; then
+            cp target/${{ matrix.target }}/release/cfmail.exe release/${{ matrix.asset_name }}
+          else
+            cp target/${{ matrix.target }}/release/cfmail release/${{ matrix.asset_name }}
+            chmod +x release/${{ matrix.asset_name }}
+          fi
+
+      - name: Upload binary to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: release/${{ matrix.asset_name }}
+          asset_name: ${{ matrix.asset_name }}
+          tag: ${{ github.ref }}
+          overwrite: true
+
+  # 可选：制作一个合并压缩包，包含所有平台的二进制文件和说明
+  package:
+    name: Package release files
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Create release directory
+        run: mkdir -p release
+
+      - name: Copy README and config example
+        run: |
+          cp README.md release/
+          cp config.toml release/config.toml.example
+
+      - name: Create config instructions
+        run: |
+          cat > release/INSTALL.md << 'EOL'
+          # CFMail 安装指南
+
+          1. 下载对应您操作系统的可执行文件
+          2. 将可执行文件放置在您想要的目录中
+          3. 复制 `config.toml.example` 为 `config.toml`，并按照您的情况修改配置
+          4. 运行程序: `./cfmail --help` 查看使用方法
+
+          ## 配置位置
+
+          配置文件可以存放在以下位置:
+          - 当前目录下的 `config.toml`
+          - `~/.config/cfmail/config.toml`
+          EOL
+
+      - name: Create release ZIP
+        run: |
+          cd release
+          zip -r ../cfmail-release.zip *
+
+      - name: Upload ZIP to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: cfmail-release.zip
+          asset_name: cfmail-release.zip
+          tag: ${{ github.ref }}
+          overwrite: true

@@ -1,3 +1,4 @@
+use crate::util::i18n;
 use colored::*;
 use indicatif::{ProgressBar, ProgressStyle};
 use prettytable::{Cell, Row, Table, format};
@@ -131,9 +132,9 @@ pub fn print_app_header() {
     let version = env!("CARGO_PKG_VERSION");
     println!(
         "{}",
-        format!("Cloudflare 邮箱别名生成器 v{}", version).bright_cyan()
+        format!("{} v{}", i18n::translate("ui.app_title"), version).bright_cyan()
     );
-    println!("{}", "一个强大、简洁的邮箱别名管理工具".cyan());
+    println!("{}", i18n::translate("ui.app_subtitle").cyan());
     println!("{}\n", "=".repeat(60).bright_magenta());
 }
 
@@ -160,9 +161,21 @@ pub fn print_list_item(index: usize, text: &str, status: Option<&str>) {
     );
 
     if let Some(status_text) = status {
-        if status_text.contains("成功") || status_text.contains("活跃") {
+        let lower_status = status_text.to_lowercase();
+        // 检查状态文本是否包含关键词，支持多语言
+        let is_success = lower_status.contains("success")
+            || lower_status.contains("active")
+            || lower_status.contains("成功")
+            || lower_status.contains("活跃");
+
+        let is_error = lower_status.contains("fail")
+            || lower_status.contains("error")
+            || lower_status.contains("失败")
+            || lower_status.contains("错误");
+
+        if is_success {
             println!(" [{}]", status_text.green());
-        } else if status_text.contains("失败") || status_text.contains("错误") {
+        } else if is_error {
             println!(" [{}]", status_text.red());
         } else {
             println!(" [{}]", status_text.yellow());
@@ -180,9 +193,7 @@ fn print_section_title(title: &str) {
 
 /// 打印结果框（简化版）
 pub fn print_result_box(title: &str, value: &str) {
-    print_section_title(title);
-    println!("  {}", value.bright_yellow().bold());
-    println!();
+    print_card(title, value);
 }
 
 /// 打印表格
@@ -220,12 +231,15 @@ pub fn print_table<T: ToString>(headers: &[&str], rows: &[Vec<T>]) {
 /// 打印别名表格
 pub fn print_aliases_table(aliases: &[String]) {
     if aliases.is_empty() {
-        print_warning("未找到邮箱别名");
+        print_warning(&i18n::translate("ui.no_aliases"));
         return;
     }
 
     // 创建表格标题
-    print_section_title(&format!("活跃的邮箱别名 (共{}个)", aliases.len()));
+    print_section_title(&i18n::translate_args(
+        "ui.active_aliases",
+        &[("count", &aliases.len().to_string())],
+    ));
 
     // 创建表格
     let mut table = Table::new();
@@ -233,9 +247,9 @@ pub fn print_aliases_table(aliases: &[String]) {
 
     // 添加标题行
     table.set_titles(Row::new(vec![
-        Cell::new("序号").style_spec("bFc"),
-        Cell::new("邮箱别名").style_spec("bFc"),
-        Cell::new("状态").style_spec("bFc"),
+        Cell::new(&i18n::translate("ui.table.number")).style_spec("bFc"),
+        Cell::new(&i18n::translate("ui.table.email_alias")).style_spec("bFc"),
+        Cell::new(&i18n::translate("ui.table.status")).style_spec("bFc"),
     ]));
 
     // 添加数据行
@@ -243,7 +257,7 @@ pub fn print_aliases_table(aliases: &[String]) {
         table.add_row(Row::new(vec![
             Cell::new(&format!("{}.", i + 1)).style_spec("Fc"),
             Cell::new(alias).style_spec("Fy"),
-            Cell::new("活跃").style_spec("Fg"),
+            Cell::new(&i18n::translate("ui.table.active")).style_spec("Fg"),
         ]));
     }
 

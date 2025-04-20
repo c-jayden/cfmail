@@ -1,4 +1,5 @@
 use crate::config::Config;
+use crate::util::i18n::{translate, translate_args};
 use anyhow::{Context, Result, anyhow};
 use chrono::{DateTime, Utc};
 use imap::Session;
@@ -98,7 +99,7 @@ impl<'a> MailMonitor<'a> {
         let tls = native_tls::TlsConnector::builder()
             .min_protocol_version(Some(native_tls::Protocol::Tlsv12)) // 强制使用TLS 1.2或更高版本
             .build()
-            .context("无法创建TLS连接器")?;
+            .context(translate("errors.create_tls_connector"))?;
 
         // 连接到服务器
         let client = imap::connect(
@@ -109,15 +110,22 @@ impl<'a> MailMonitor<'a> {
             self.config.smtp.imap_server.as_str(),
             &tls,
         )
-        .context("无法连接到IMAP服务器")?;
+        .context(translate("errors.connect_imap"))?;
 
         // 登录
         let mut imap_session = client
             .login(&self.config.smtp.username, &self.config.smtp.password)
-            .map_err(|e| anyhow!("IMAP登录失败: {:?}", e.0))?;
+            .map_err(|e| {
+                anyhow!(translate_args(
+                    "errors.imap_login_failed",
+                    &[("error", &format!("{:?}", e.0))]
+                ))
+            })?;
 
         // 选择收件箱
-        imap_session.select("INBOX").context("无法选择收件箱")?;
+        imap_session
+            .select("INBOX")
+            .context(translate("errors.select_inbox"))?;
 
         Ok(imap_session)
     }
@@ -125,7 +133,7 @@ impl<'a> MailMonitor<'a> {
     /// 创建验证码提取正则表达式
     fn create_regex(&self) -> Result<Regex> {
         let pattern = self.options.code_type.pattern(self.options.code_length);
-        Regex::new(&pattern).context("无法创建正则表达式")
+        Regex::new(&pattern).context(translate("errors.create_regex"))
     }
 
     /// 获取消息的纯文本内容
@@ -176,21 +184,21 @@ impl<'a> MailMonitor<'a> {
         // 改进匹配逻辑，避免匹配到年份或其他非验证码数字
         // 1. 优先查找验证码标记后的数字
         let code_markers = [
-            "验证码",
-            "code",
-            "密码",
-            "校验码",
-            "动态码",
-            "口令",
-            "码",
-            "验证代码",
-            "动态密码",
-            "验证",
-            "verification",
+            translate("code_markers.verification_code"),
+            translate("code_markers.code"),
+            translate("code_markers.password"),
+            translate("code_markers.check_code"),
+            translate("code_markers.dynamic_code"),
+            translate("code_markers.token"),
+            translate("code_markers.code"),
+            translate("code_markers.verification_token"),
+            translate("code_markers.dynamic_password"),
+            translate("code_markers.verification"),
+            "verification".to_string(),
         ];
 
         // 先尝试查找带有常见提示词的验证码
-        for marker in code_markers {
+        for marker in &code_markers {
             let marker_regex = format!(r"{}[\s:：]*([0-9A-Za-z]{{4,8}})", regex::escape(marker));
             if let Ok(r) = Regex::new(&marker_regex) {
                 if let Some(caps) = r.captures(text) {
@@ -284,7 +292,7 @@ impl<'a> MailMonitor<'a> {
             }
         }
 
-        "[无标题]".to_string()
+        translate("errors.no_subject")
     }
 
     /// 获取发件人
@@ -293,7 +301,10 @@ impl<'a> MailMonitor<'a> {
         // 1. 尝试通过 from 方法获取
         let from_value = message.from();
         if let Some(from_text) = from_value.as_text_ref() {
-            println!("[调试] from()方法成功: {}", from_text);
+            println!(
+                "{}",
+                translate_args("debug.from_method_success", &[("text", from_text)])
+            );
             // 尝试解析复杂的发件人格式
             if let Some(email_start) = from_text.find('<') {
                 if let Some(email_end) = from_text.find('>') {
@@ -312,19 +323,31 @@ impl<'a> MailMonitor<'a> {
             }
             return from_text.to_string();
         } else {
-            println!("[调试] from()方法未返回文本内容");
+            println!("{}", translate("debug.from_method_no_text"));
         }
 
         // 2. 直接尝试查找From头部
-        println!("[调试] 开始查找From头部");
+        println!("{}", translate("debug.find_from_header"));
         for header in message.headers() {
-            println!("[调试] 检查头部: {}", header.name());
+            println!(
+                "{}",
+                translate_args("debug.check_header", &[("name", header.name())])
+            );
             if header.name().eq_ignore_ascii_case("from") {
-                println!("[调试] 找到From头部");
+                println!("{}", translate("debug.found_from_header"));
                 let value = header.value();
-                println!("[调试] From头部值类型: {:?}", value);
+                println!(
+                    "{}",
+                    translate_args(
+                        "debug.from_header_value_type",
+                        &[("type", &format!("{:?}", value))]
+                    )
+                );
                 if let Some(from) = value.as_text_ref() {
-                    println!("[调试] From文本内容: {}", from);
+                    println!(
+                        "{}",
+                        translate_args("debug.from_text_content", &[("content", from)])
+                    );
                     // 尝试解析复杂的发件人格式
                     if let Some(email_start) = from.find('<') {
                         if let Some(email_end) = from.find('>') {
@@ -343,23 +366,29 @@ impl<'a> MailMonitor<'a> {
                     }
                     return from.to_string();
                 } else {
-                    println!("[调试] From头部无法提取文本");
+                    println!("{}", translate("debug.from_header_no_text"));
                 }
             }
         }
 
         // 3. 打印所有可用的头部，以便调试
-        println!("[调试] 没有找到有效的From头部。所有头部列表:");
+        println!("{}", translate("debug.no_valid_from_header"));
         for header in message.headers() {
-            println!("[调试] 头部名称: {}", header.name());
+            println!(
+                "{}",
+                translate_args("debug.header_name", &[("name", header.name())])
+            );
             if let Some(text) = header.value().as_text_ref() {
-                println!("[调试]   值: {}", text);
+                println!(
+                    "{}",
+                    translate_args("debug.header_value", &[("value", text)])
+                );
             } else {
-                println!("[调试]   值: <无法提取文本>");
+                println!("{}", translate("debug.header_no_text"));
             }
         }
 
-        "[未知发件人]".to_string()
+        translate("errors.unknown_sender")
     }
 
     /// 等待验证码邮件
@@ -376,7 +405,7 @@ impl<'a> MailMonitor<'a> {
             let mut imap_session = match self.connect_imap() {
                 Ok(session) => session,
                 Err(e) => {
-                    eprintln!("连接IMAP服务器失败: {}", e);
+                    eprintln!("{}: {}", translate("commands.watch.connecting"), e);
                     std::thread::sleep(poll_interval);
                     continue;
                 }
@@ -384,15 +413,19 @@ impl<'a> MailMonitor<'a> {
 
             // 搜索未读邮件
             let search_criteria = if let Some(ref sender) = self.options.from_filter {
+                let from_message =
+                    translate_args("commands.watch.from_filter", &[("filter", sender)]);
+                println!("{}", from_message);
                 format!("UNSEEN FROM \"{}\"", sender)
             } else {
+                println!("{}", translate("commands.watch.searching"));
                 "UNSEEN".to_string()
             };
 
             let seq_nums = match imap_session.search(&search_criteria) {
                 Ok(nums) => nums,
                 Err(e) => {
-                    eprintln!("搜索邮件失败: {:?}", e);
+                    eprintln!("{}: {:?}", translate("errors.search_email_failed"), e);
                     let _ = imap_session.logout();
                     std::thread::sleep(poll_interval);
                     continue;
@@ -409,7 +442,7 @@ impl<'a> MailMonitor<'a> {
                     let fetch_result = match imap_session.fetch(seq_num.to_string(), "RFC822") {
                         Ok(result) => result,
                         Err(e) => {
-                            eprintln!("获取邮件内容失败: {:?}", e);
+                            eprintln!("{}: {:?}", translate("errors.fetch_content_failed"), e);
                             continue;
                         }
                     };
@@ -446,6 +479,6 @@ impl<'a> MailMonitor<'a> {
             std::thread::sleep(poll_interval);
         }
 
-        Err(anyhow!("超时: 未找到包含验证码的邮件"))
+        Err(anyhow!(translate("commands.watch.timeout")))
     }
 }

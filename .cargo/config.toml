@@ -1,0 +1,12 @@
+[target.x86_64-pc-windows-msvc]
+rustflags = ["-C", "target-feature=+crt-static"]
+
+[target.x86_64-unknown-linux-gnu]
+linker = "x86_64-linux-gnu-gcc"
+
+# 针对不同平台的优化设置
+[profile.release]
+lto = true        # 启用链接时优化
+codegen-units = 1 # 减少代码生成单元，提高优化程度
+panic = 'abort'   # 在恐慌时直接中止，减小二进制大小
+strip = true      # 去除符号信息，减小文件大小

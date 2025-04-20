@@ -25,12 +25,20 @@
 - **验证码监听** - 自动监听邮箱中的验证码并提取
 - **现代CLI界面** - 美观的命令行界面，提供良好的用户体验
 - **配置灵活** - 支持多种验证码类型和自定义过滤条件
+- **多语言支持** - 支持中文和英文界面，自动检测系统语言
 
 ## 安装
 
 ### 预编译二进制文件
 
 从[发布页面](https://github.com/yourusername/cfmail/releases)下载适用于您操作系统的最新版本。
+
+### 跨平台支持
+
+CFMAIL支持以下平台：
+- Windows (x86_64)
+- macOS (x86_64)
+- Linux (x86_64)
 
 ### 从源码构建
 
@@ -43,6 +51,27 @@ cargo build --release
 ```
 
 编译后的二进制文件将位于 `target/release` 目录中。
+
+### 交叉编译
+
+项目包含了用于交叉编译的脚本，可以在一个平台上编译出多个平台的二进制文件：
+
+```bash
+# 确保脚本有执行权限
+chmod +x cross-build.sh
+# 运行交叉编译脚本
+./cross-build.sh
+```
+
+对于Windows交叉编译，您可能需要安装额外的工具：
+
+```bash
+# 在macOS上
+brew install mingw-w64
+
+# 在Linux上
+sudo apt install mingw-w64
+```
 
 ## 使用方法
 
@@ -129,6 +158,93 @@ cfmail watch-code --length 6 --code-type numeric
 
 ```bash
 cfmail watch-code --from example.com
+```
+
+#### 切换语言
+
+程序支持英文和中文界面，可以通过以下方式切换：
+
+```bash
+# 使用英文
+cfmail --locale en generate
+
+# 使用中文
+cfmail --locale zh list
+
+# 语言参数可以组合任何命令
+cfmail --locale zh watch-code --from example.com
+```
+
+程序会自动检测系统语言设置，如果系统设置为中文环境（LANG=zh_CN.*），则自动使用中文界面；否则默认使用英文界面。
+
+您也可以通过设置环境变量来切换语言，无需在每个命令中使用`--locale`参数：
+
+```bash
+# Linux/macOS
+export LANG=zh_CN.UTF-8
+cfmail generate
+
+# Windows PowerShell
+$env:LANG = "zh_CN.UTF-8"
+cfmail generate
+
+# Windows CMD
+set LANG=zh_CN.UTF-8
+cfmail generate
+```
+
+#### 自定义语言
+
+本程序的语言文件存储在`locales`目录下，采用JSON格式。如果您想添加新的语言，可以：
+
+1. 复制`locales/en-US.json`文件，重命名为您想添加的语言代码（如`ja-JP.json`）
+2. 翻译文件中的所有文本
+3. 修改`src/util/i18n.rs`文件，添加对应的语言支持
+
+```rust
+// 在SupportedLocale枚举中添加
+pub enum SupportedLocale {
+    EnUS,
+    ZhCN,
+    JaJP,  // 新增日语
+}
+
+// 添加对应的str转换
+pub fn as_str(&self) -> &'static str {
+    match self {
+        SupportedLocale::EnUS => "en-US",
+        SupportedLocale::ZhCN => "zh-CN",
+        SupportedLocale::JaJP => "ja-JP", // 新增
+    }
+}
+
+// 添加字符串识别
+pub fn from_str(s: &str) -> Option<Self> {
+    match s.to_lowercase().as_str() {
+        "en" | "en-us" | "en_us" | "english" => Some(SupportedLocale::EnUS),
+        "zh" | "zh-cn" | "zh_cn" | "chinese" => Some(SupportedLocale::ZhCN),
+        "ja" | "ja-jp" | "ja_jp" | "japanese" => Some(SupportedLocale::JaJP), // 新增
+        _ => None,
+    }
+}
+
+// 添加语言显示名称
+pub fn get_current_locale_name() -> &'static str {
+    match get_current_locale() {
+        SupportedLocale::EnUS => "English",
+        SupportedLocale::ZhCN => "简体中文",
+        SupportedLocale::JaJP => "日本語", // 新增
+    }
+}
+
+// 更新列表
+pub fn list_supported_locales() -> Vec<(&'static str, &'static str)> {
+    vec![
+        ("en", "English"),
+        ("zh", "简体中文"),
+        ("ja", "日本語"), // 新增
+    ]
+}
 ```
 
 ## 安全建议
