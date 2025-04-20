@@ -1,0 +1,32 @@
+[package]
+name = "cfmail"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+tokio = { version = "1", features = ["full"] }
+reqwest = { version = "0.12", features = ["json"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+toml = "0.8"
+rand = "0.8"
+clap = { version = "4", features = ["derive"] }
+anyhow = "1"
+thiserror = "1"
+chrono = "0.4"
+arboard = "3.3"
+config = "0.13"
+dirs = "5"
+# 命令行美化
+indicatif = "0.17" # 进度条和加载指示器
+colored = "2.1"    # 彩色输出
+dialoguer = "0.11" # 交互式对话
+# 邮件处理
+imap = "2.4"            # IMAP客户端
+native-tls = "0.2"      # TLS支持
+mail-parser = "0.8"     # 邮件解析
+regex = "1.10"          # 正则表达式
+html2text = "0.6"       # HTML转文本
+unicode-width = "0.2.0"
+cli-table = "0.5.0"
+prettytable-rs = "0.10"
