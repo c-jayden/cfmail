@@ -31,7 +31,7 @@
 
 ### 预编译二进制文件
 
-从[发布页面](https://github.com/yourusername/cfmail/releases)下载适用于您操作系统的最新版本。
+从[发布页面](https://github.com/c-jayden/cfmail/releases)下载适用于您操作系统的最新版本。
 
 ### 跨平台支持
 
@@ -45,7 +45,7 @@ CFMAIL支持以下平台：
 确保您已安装 [Rust](https://www.rust-lang.org/tools/install) 工具链。
 
 ```bash
-git clone https://github.com/yourusername/cfmail.git
+git clone https://github.com/c-jayden/cfmail.git
 cd cfmail
 cargo build --release
 ```
@@ -233,7 +233,6 @@ pub fn get_current_locale_name() -> &'static str {
     match get_current_locale() {
         SupportedLocale::EnUS => "English",
         SupportedLocale::ZhCN => "简体中文",
-        SupportedLocale::JaJP => "日本語", // 新增
     }
 }
 
@@ -242,7 +241,6 @@ pub fn list_supported_locales() -> Vec<(&'static str, &'static str)> {
     vec![
         ("en", "English"),
         ("zh", "简体中文"),
-        ("ja", "日本語"), // 新增
     ]
 }
 ```

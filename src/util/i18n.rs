@@ -5,6 +5,11 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::sync::RwLock;
+use rust_embed::RustEmbed;
+
+#[derive(RustEmbed)]
+#[folder = "locales/"]
+struct LocaleFiles;
 
 /// 支持的语言列表
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -62,7 +67,7 @@ static TRANSLATIONS: Lazy<RwLock<HashMap<String, HashMap<String, String>>>> =
 /// 加载指定语言的翻译文件
 fn load_translations(locale: SupportedLocale) -> Result<(), String> {
     let locale_str = locale.as_str();
-    let file_path = format!("locales/{}.json", locale_str);
+    let file_name = format!("{}.json", locale_str);
 
     // 检查是否已加载
     {
@@ -72,23 +77,21 @@ fn load_translations(locale: SupportedLocale) -> Result<(), String> {
         }
     }
 
-    // 尝试加载文件
-    let path = Path::new(&file_path);
-    let mut file = match File::open(path) {
-        Ok(f) => f,
-        Err(e) => return Err(format!("Failed to open file {}: {}", file_path, e)),
+    // 从嵌入式资源加载文件
+    let content = match LocaleFiles::get(&file_name) {
+        Some(file) => {
+            // 将字节转换为字符串 - 正确处理 EmbeddedFile
+            std::str::from_utf8(file.data.as_ref())
+                .map_err(|e| format!("Invalid UTF-8 in locale file {}: {}", file_name, e))?
+                .to_string()
+        },
+        None => return Err(format!("Locale file {} not found", file_name)),
     };
-
-    // 读取文件内容
-    let mut content = String::new();
-    if let Err(e) = file.read_to_string(&mut content) {
-        return Err(format!("Failed to read file {}: {}", file_path, e));
-    }
 
     // 解析JSON
     let json: Value = match serde_json::from_str(&content) {
         Ok(v) => v,
-        Err(e) => return Err(format!("Failed to parse JSON from {}: {}", file_path, e)),
+        Err(e) => return Err(format!("Failed to parse JSON from {}: {}", file_name, e)),
     };
 
     // 转换为扁平结构
