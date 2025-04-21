@@ -67,9 +67,10 @@ impl Config {
     }
 
     pub fn init() -> Result<std::path::PathBuf> {
-        let config_dir = dirs::home_dir()
-            .context("无法获取用户主目录")?
-            .join(".config/cfmail");
+        let mut config_dir = dirs::home_dir()
+            .context("无法获取用户主目录")?;
+        config_dir.push(".config");
+        config_dir.push("cfmail");
 
         let config_path = config_dir.join("config.toml");
 
@@ -138,9 +139,10 @@ smtp_port = 587
     }
 
     fn find_config_file() -> Result<std::path::PathBuf> {
-        let config_dir = dirs::home_dir()
-            .context("无法获取用户主目录")?
-            .join(".config/cfmail");
+        let mut config_dir = dirs::home_dir()
+            .context("无法获取用户主目录")?;
+        config_dir.push(".config");
+        config_dir.push("cfmail");
 
         let config_path = config_dir.join("config.toml");
 
